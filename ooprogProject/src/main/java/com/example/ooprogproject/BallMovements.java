@@ -28,6 +28,7 @@ public class BallMovements {
                 ball.getBalls().setCenterY(newYspeed);
                 if(newYspeed <= 0 || newYspeed >= scene.getHeight()-ball.getBalls().getRadius()) {
                     newYspeed *= -1;
+                    Thread.sleep(200);
                 }
 
                 double finalNewYspeed = newYspeed;
