@@ -2,12 +2,14 @@ package com.example.ooprogproject;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -20,10 +22,12 @@ import javafx.stage.Stage;
 
 
 
+
 public class Main extends Application {
 
     public static double width = 1280, height = 720;
-    private Stage stage;
+    public Stage stage;
+
 
     @Override
    public void start(Stage stage){
@@ -174,14 +178,17 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
 
+
+
         BallMovements ballMovements = new BallMovements();
-        ballMovements.moveBall(scene, ball);
+        ballMovements.moveBall(scene, ball, paddle1, paddle2);
         PaddleMovements paddleMovements = new PaddleMovements();
-        paddleMovements.movePaddle(scene, paddle1, paddle2);
+        paddleMovements.movePaddle(scene, stage, paddle1, paddle2);
 
         scene.setOnKeyPressed((event) -> {
             if (event.getCode() == KeyCode.ESCAPE) stage.close();
         });
+
 
     }
 
