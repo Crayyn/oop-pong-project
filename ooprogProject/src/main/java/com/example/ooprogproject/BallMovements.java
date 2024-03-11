@@ -3,7 +3,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.Scene;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

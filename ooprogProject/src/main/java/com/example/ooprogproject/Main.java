@@ -202,7 +202,7 @@ public class Main extends Application {
         ballMovements.moveBall(scene, ball, paddle1, paddle2, player1score, player2score, scoreToWin,
                 player1scoreDisplay, player2scoreDisplay, player1scores, player2scores, player1wins, player2wins);
         PaddleMovements paddleMovements = new PaddleMovements();
-        paddleMovements.movePaddle(scene, stage, paddle1, paddle2);
+        paddleMovements.movePaddle(scene, paddle1, paddle2);
 
 
 

@@ -1,14 +1,10 @@
 package com.example.ooprogproject;
-import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.event.EventHandler;
-import javafx.scene.input.KeyEvent;
-import javafx.stage.Stage;
 
 public class PaddleMovements implements EventHandler<KeyEvent> {
 
@@ -19,45 +15,38 @@ public class PaddleMovements implements EventHandler<KeyEvent> {
 
     public double movePaddle1 = 0;
     public double movePaddle2 = 0;
-    private int speed = 2;
+    private final int speed = 2;
 
-    public void movePaddle(Scene scene, Stage stage, Paddle paddle1, Paddle paddle2) {
+    public void movePaddle(Scene scene, Paddle paddle1, Paddle paddle2) {
         Thread paddleMovement = new Thread(() -> { //thread
 
-            scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-                @Override
-                public void handle(KeyEvent keyEvent) {
+            scene.setOnKeyPressed(keyEvent -> {
 
-                    if (keyEvent.getCode() == KeyCode.W) {
-                        paddle1Up = true;
-                    } else if (keyEvent.getCode() == KeyCode.S) {
-                        paddle1Down = true;
-                    } else if (keyEvent.getCode() == KeyCode.UP) {
-                        paddle2Up = true;
-                    } else if (keyEvent.getCode() == KeyCode.DOWN) {
-                        paddle2Down = true;
-                    } else if (keyEvent.getCode() == KeyCode.ESCAPE) {
-                        Runtime.getRuntime().exit(0);
-                    }
+                if (keyEvent.getCode() == KeyCode.W) {
+                    paddle1Up = true;
+                } else if (keyEvent.getCode() == KeyCode.S) {
+                    paddle1Down = true;
+                } else if (keyEvent.getCode() == KeyCode.UP) {
+                    paddle2Up = true;
+                } else if (keyEvent.getCode() == KeyCode.DOWN) {
+                    paddle2Down = true;
+                } else if (keyEvent.getCode() == KeyCode.ESCAPE) {
+                    Runtime.getRuntime().exit(0);
                 }
-
             });
 
-            scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
-                @Override
-                public void handle(KeyEvent keyEvent) {
-                    if (keyEvent.getCode() == KeyCode.W) {
-                        paddle1Up = false;
-                    } else if (keyEvent.getCode() == KeyCode.S) {
-                        paddle1Down = false;
-                    } else if (keyEvent.getCode() == KeyCode.UP) {
-                        paddle2Up = false;
-                    } else if (keyEvent.getCode() == KeyCode.DOWN) {
-                        paddle2Down = false;
-                    }
-                    movePaddle1 = 0;
-                    movePaddle2 = 0;
+            scene.setOnKeyReleased(keyEvent -> {
+                if (keyEvent.getCode() == KeyCode.W) {
+                    paddle1Up = false;
+                } else if (keyEvent.getCode() == KeyCode.S) {
+                    paddle1Down = false;
+                } else if (keyEvent.getCode() == KeyCode.UP) {
+                    paddle2Up = false;
+                } else if (keyEvent.getCode() == KeyCode.DOWN) {
+                    paddle2Down = false;
                 }
+                movePaddle1 = 0;
+                movePaddle2 = 0;
             });
 
             AnimationTimer timer = new AnimationTimer() {
@@ -80,8 +69,7 @@ public class PaddleMovements implements EventHandler<KeyEvent> {
             timer.start();
 
             while(true) {
-                paddle1.getPaddles().setY(paddle1.getPaddles().getY() + movePaddle1);
-                paddle2.getPaddles().setY(paddle2.getPaddles().getY() + movePaddle2);
+
                 //make sure paddle doesnt go off screen
                 if (paddle1.getPaddles().getY() < 0) {
                     paddle1.getPaddles().setY(0);
@@ -96,7 +84,12 @@ public class PaddleMovements implements EventHandler<KeyEvent> {
                     paddle2.getPaddles().setY(scene.getHeight() - paddle2.getPaddles().getHeight());
                 }
 
+                Platform.runLater(() -> {
 
+                    paddle1.getPaddles().setY(paddle1.getPaddles().getY() + movePaddle1);
+                    paddle2.getPaddles().setY(paddle2.getPaddles().getY() + movePaddle2);
+
+                });
 
                 try {
                     Thread.sleep(10);
