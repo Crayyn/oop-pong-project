@@ -2,14 +2,12 @@ package com.example.ooprogproject;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -20,13 +18,14 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
-
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class Main extends Application {
 
     public static double width = 1280, height = 720;
     public Stage stage;
+
 
 
     @Override
@@ -72,7 +71,7 @@ public class Main extends Application {
         });
 
         startButton.setOnAction(event -> {
-            game(player1Name.getText(), player2Name.getText(), paddleWidth.getValue(), paddleHeight.getValue());
+            game( player1Name.getText(), player2Name.getText(), paddleWidth.getValue(), paddleHeight.getValue(), scoreToWin.getValue());
         });
 
         VBox playerNames = new VBox(20, title, player1text, player1Name, player2text, player2Name, speedText,
@@ -102,7 +101,7 @@ public class Main extends Application {
         stage.show();
     }
 
-    public void game(String player1Name, String player2Name, int paddleWidth, int paddleHeight){
+    public void game(String player1Name, String player2Name, int paddleWidth, int paddleHeight, int scoreToWin){
 
         Balls ball = new Balls(20, Color.RED);
         Paddle paddle1 = new Paddle(paddleHeight, paddleWidth, Color.ORANGE);
@@ -112,15 +111,25 @@ public class Main extends Application {
         player1.setTextFill(Color.WHITE);
         Label player2 = new Label(player2Name);
         player2.setTextFill(Color.WHITE);
-        int player1score = 0;
-        int player2score = 0;
+        AtomicInteger player1score = new AtomicInteger();
+        AtomicInteger player2score = new AtomicInteger();
         Label player1scoreDisplay = new Label("" + player1score);
         Label player2scoreDisplay = new Label("" + player2score);
+        Label player1scores = new Label("Player 1 Scores!");
+        Label player2scores = new Label("Player 2 Scores!");
+        Label player1wins = new Label("Player 1 Wins!");
+        Label player2wins = new Label("Player 2 Wins!");
         player1scoreDisplay.setTextFill(Color.WHITE);
         player2scoreDisplay.setTextFill(Color.WHITE);
+        player1scores.setTextFill(Color.TRANSPARENT);
+        player2scores.setTextFill(Color.TRANSPARENT);
+        player1wins.setTextFill(Color.TRANSPARENT);
+        player2wins.setTextFill(Color.TRANSPARENT);
+
 
         Pane root = new Pane();
-        root.getChildren().addAll(ball.getBalls(), paddle1.getPaddles(), paddle2.getPaddles(), player1, player2, player1scoreDisplay, player2scoreDisplay);
+        root.getChildren().addAll(ball.getBalls(), paddle1.getPaddles(), paddle2.getPaddles(), player1, player2,
+                player1scoreDisplay, player2scoreDisplay, player1scores, player2scores, player1wins, player2wins);
         root.setStyle("-fx-background-color: Black");
 
         ChangeListener <Number> layout = ((observableValue, oldValue, newValue) -> {
@@ -146,6 +155,10 @@ public class Main extends Application {
             player2.setTextAlignment(TextAlignment.RIGHT);
             player1scoreDisplay.setPadding(new Insets(20, 0, 0, width/2-65));
             player2scoreDisplay.setPadding(new Insets(20, 0, 0, width/2+30));
+            player2scores.setPadding(new Insets(height/2, 0, 0, width/2-50));
+            player1scores.setPadding(new Insets(height/2, 0, 0, width/2-50));
+            player1wins.setPadding(new Insets(height/2, 0, 0, width/2-50));
+            player2wins.setPadding(new Insets(height/2, 0, 0, width/2-50));
         });
 
         stage.widthProperty().addListener(layout);
@@ -174,20 +187,24 @@ public class Main extends Application {
         player2.setPadding(new Insets(20, 20, 20, 20));
         player1scoreDisplay.setPadding(new Insets(20, 0, 0, width/2-65));
         player2scoreDisplay.setPadding(new Insets(20, 0, 0, width/2+40));
+        player2scores.setPadding(new Insets(height/2, 0, 0, width/2-50));
+        player1scores.setPadding(new Insets(height/2, 0, 0, width/2-50));
+        player1wins.setPadding(new Insets(height/2, 0, 0, width/2-50));
+        player2wins.setPadding(new Insets(height/2, 0, 0, width/2-50));
 
         stage.setScene(scene);
         stage.show();
 
 
 
+
         BallMovements ballMovements = new BallMovements();
-        ballMovements.moveBall(scene, ball, paddle1, paddle2);
+        ballMovements.moveBall(scene, ball, paddle1, paddle2, player1score, player2score, scoreToWin,
+                player1scoreDisplay, player2scoreDisplay, player1scores, player2scores, player1wins, player2wins);
         PaddleMovements paddleMovements = new PaddleMovements();
         paddleMovements.movePaddle(scene, stage, paddle1, paddle2);
 
-        scene.setOnKeyPressed((event) -> {
-            if (event.getCode() == KeyCode.ESCAPE) stage.close();
-        });
+
 
 
     }

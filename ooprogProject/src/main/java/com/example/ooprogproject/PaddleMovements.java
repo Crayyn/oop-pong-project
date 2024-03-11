@@ -1,6 +1,7 @@
 package com.example.ooprogproject;
 import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
@@ -35,6 +36,8 @@ public class PaddleMovements implements EventHandler<KeyEvent> {
                         paddle2Up = true;
                     } else if (keyEvent.getCode() == KeyCode.DOWN) {
                         paddle2Down = true;
+                    } else if (keyEvent.getCode() == KeyCode.ESCAPE) {
+                        Runtime.getRuntime().exit(0);
                     }
                 }
 
@@ -79,7 +82,7 @@ public class PaddleMovements implements EventHandler<KeyEvent> {
             while(true) {
                 paddle1.getPaddles().setY(paddle1.getPaddles().getY() + movePaddle1);
                 paddle2.getPaddles().setY(paddle2.getPaddles().getY() + movePaddle2);
-
+                //make sure paddle doesnt go off screen
                 if (paddle1.getPaddles().getY() < 0) {
                     paddle1.getPaddles().setY(0);
                 }
