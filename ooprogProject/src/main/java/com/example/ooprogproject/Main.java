@@ -71,7 +71,8 @@ public class Main extends Application {
         });
 
         startButton.setOnAction(event -> {
-            game( player1Name.getText(), player2Name.getText(), paddleWidth.getValue(), paddleHeight.getValue(), scoreToWin.getValue());
+            game( player1Name.getText(), player2Name.getText(), paddleWidth.getValue(), paddleHeight.getValue(),
+                    scoreToWin.getValue());
         });
 
         VBox playerNames = new VBox(20, title, player1text, player1Name, player2text, player2Name, speedText,
@@ -106,6 +107,7 @@ public class Main extends Application {
         Balls ball = new Balls(20, Color.RED);
         Paddle paddle1 = new Paddle(paddleHeight, paddleWidth, Color.ORANGE);
         Paddle paddle2 = new Paddle(paddleHeight, paddleWidth, Color.GOLD);
+
         stage.setTitle("Pong!");
         Label player1 = new Label(player1Name);
         player1.setTextFill(Color.WHITE);
