@@ -176,8 +176,8 @@ public class Main extends Application {
 
         BallMovements ballMovements = new BallMovements();
         ballMovements.moveBall(scene, ball);
-
-
+        PaddleMovements paddleMovements = new PaddleMovements();
+        paddleMovements.movePaddle(scene, paddle1, paddle2);
 
         scene.setOnKeyPressed((event) -> {
             if (event.getCode() == KeyCode.ESCAPE) stage.close();
