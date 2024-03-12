@@ -70,25 +70,24 @@ public class PaddleMovements implements EventHandler<KeyEvent> {
 
             while(true) {
 
-                //make sure paddle doesnt go off screen
-                if (paddle1.getPaddles().getY() < 0) {
-                    paddle1.getPaddles().setY(0);
-                }
-                if (paddle1.getPaddles().getY() > scene.getHeight() - paddle1.getPaddles().getHeight()) {
-                    paddle1.getPaddles().setY(scene.getHeight() - paddle1.getPaddles().getHeight());
-                }
-                if (paddle2.getPaddles().getY() < 0) {
-                    paddle2.getPaddles().setY(0);
-                }
-                if (paddle2.getPaddles().getY() > scene.getHeight() - paddle2.getPaddles().getHeight()) {
-                    paddle2.getPaddles().setY(scene.getHeight() - paddle2.getPaddles().getHeight());
-                }
+
 
                 Platform.runLater(() -> {
 
                     paddle1.getPaddles().setY(paddle1.getPaddles().getY() + movePaddle1);
                     paddle2.getPaddles().setY(paddle2.getPaddles().getY() + movePaddle2);
-
+                    if (paddle1.getPaddles().getY() < 0) {
+                        paddle1.getPaddles().setY(0);
+                    }
+                    if (paddle1.getPaddles().getY() > scene.getHeight() - paddle1.getPaddles().getHeight()) {
+                        paddle1.getPaddles().setY(scene.getHeight() - paddle1.getPaddles().getHeight());
+                    }
+                    if (paddle2.getPaddles().getY() < 0) {
+                        paddle2.getPaddles().setY(0);
+                    }
+                    if (paddle2.getPaddles().getY() > scene.getHeight() - paddle2.getPaddles().getHeight()) {
+                        paddle2.getPaddles().setY(scene.getHeight() - paddle2.getPaddles().getHeight());
+                    }
                 });
 
                 try {
