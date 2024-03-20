@@ -71,8 +71,8 @@ public class Main extends Application {
         });
 
         startButton.setOnAction(event -> {
-            game( player1Name.getText(), player2Name.getText(), paddleWidth.getValue(), paddleHeight.getValue(),
-                    scoreToWin.getValue());
+            game( player1Name.getText(), player2Name.getText(), ballSpeed.getValue(), frequency.getValue(),
+                    paddleWidth.getValue(), paddleHeight.getValue(), scoreToWin.getValue());
         });
 
         VBox playerNames = new VBox(20, title, player1text, player1Name, player2text, player2Name, speedText,
@@ -102,7 +102,7 @@ public class Main extends Application {
         stage.show();
     }
 
-    public void game(String player1Name, String player2Name, int paddleWidth, int paddleHeight, int scoreToWin){
+    public void game(String player1Name, String player2Name, int ballSpeed, int frequency, int paddleWidth, int paddleHeight, int scoreToWin){
 
         Balls ball = new Balls(20, Color.RED);
         Paddle paddle1 = new Paddle(paddleHeight, paddleWidth, Color.ORANGE);
@@ -200,8 +200,8 @@ public class Main extends Application {
 
 
 
-        BallMovements ballMovements = new BallMovements();
-        ballMovements.moveBall(scene, ball, paddle1, paddle2, player1score, player2score, scoreToWin,
+        Movements movements = new Movements();
+        movements.moveBall(scene, ball, paddle1, paddle2, player1score, player2score, ballSpeed, frequency, scoreToWin,
                 player1scoreDisplay, player2scoreDisplay, player1scores, player2scores, player1wins, player2wins);
         PaddleMovements paddleMovements = new PaddleMovements();
         paddleMovements.movePaddle(scene, paddle1, paddle2);
