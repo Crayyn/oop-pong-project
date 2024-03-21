@@ -21,9 +21,21 @@ import javafx.stage.Stage;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
+/**
+ * The type Main.
+ */
 public class Main extends Application {
 
-    public static double width = 1280, height = 720;
+    /**
+     * The constant width.
+     */
+    public static double width = 1280, /**
+     * The Height.
+     */
+    height = 720;
+    /**
+     * The Stage.
+     */
     public Stage stage;
 
 
@@ -102,6 +114,17 @@ public class Main extends Application {
         stage.show();
     }
 
+    /**
+     * Game.
+     *
+     * @param player1Name  the player 1 name
+     * @param player2Name  the player 2 name
+     * @param ballSpeed    the ball speed
+     * @param frequency    the frequency
+     * @param paddleWidth  the paddle width
+     * @param paddleHeight the paddle height
+     * @param scoreToWin   the score to win
+     */
     public void game(String player1Name, String player2Name, int ballSpeed, int frequency, int paddleWidth, int paddleHeight, int scoreToWin){
 
         Balls ball = new Balls(20, Color.RED);
@@ -200,11 +223,11 @@ public class Main extends Application {
 
 
 
-        Movements movements = new Movements();
-        movements.moveBall(scene, ball, paddle1, paddle2, player1score, player2score, ballSpeed, frequency, scoreToWin,
-                player1scoreDisplay, player2scoreDisplay, player1scores, player2scores, player1wins, player2wins);
-        PaddleMovements paddleMovements = new PaddleMovements();
-        paddleMovements.movePaddle(scene, paddle1, paddle2);
+        Movements movements = new Movements(ball, paddle1, paddle2, player1score, player2score, ballSpeed,
+                frequency, scoreToWin, player1scoreDisplay, player2scoreDisplay, player1scores, player2scores,
+                player1wins, player2wins);
+
+        movements.startGame(scene);
 
 
 
@@ -212,9 +235,11 @@ public class Main extends Application {
     }
 
 
-
-
-
+    /**
+     * The entry point of application.
+     *
+     * @param args the input arguments
+     */
     public static void main(String[] args) {
         launch();
     }
