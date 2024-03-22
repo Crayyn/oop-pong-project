@@ -17,11 +17,12 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import java.io.*;
 
 /**
  * The type Main.
  */
-public class Main extends Application {
+public class Main extends Application implements Serializable {
 
     /**
      * The width.
@@ -36,6 +37,36 @@ public class Main extends Application {
      */
     public Stage stage;
 
+    /**
+     * The Player 1 name save.
+     */
+    String player1NameSave = "Player 1";
+    /**
+     * The Player 2 name save.
+     */
+    String player2NameSave = "Player 2";
+    /**
+     * The Ball speed save.
+     */
+    int ballSpeedSave = 2;
+    /**
+     * The Frequency save.
+     */
+    int frequencySave = 5;
+    /**
+     * The Paddle width save.
+     */
+    int paddleWidthSave = 20;
+    /**
+     * The Paddle height save.
+     */
+    int paddleHeightSave = 100;
+    /**
+     * The Score to win save.
+     */
+    int scoreToWinSave = 5;
+
+
 
     /**
      * The main menu for the game.
@@ -43,55 +74,100 @@ public class Main extends Application {
      * @param  stage    The JavaFX stage where the game will be displayed
      */
     @Override
-   public void start(Stage stage){
+    public void start(Stage stage) throws IOException, ClassNotFoundException {
         this.stage = stage;
+
+        //load save data
+        if(new File("saveParams.ser").exists()) {
+            FileInputStream fileIn = new FileInputStream("saveParams.ser");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            player1NameSave = (String) in.readObject();
+            player2NameSave = (String) in.readObject();
+            ballSpeedSave = (int) in.readObject();
+            frequencySave = (int) in.readObject();
+            paddleWidthSave = (int) in.readObject();
+            paddleHeightSave = (int) in.readObject();
+            scoreToWinSave = (int) in.readObject();
+            in.close();
+            fileIn.close();
+        }
+
+
+        //generate menu
         Image icon = new Image("file:ooprogProject/src/ryanair.png");
         stage.getIcons().add(icon);
         Text title = new Text("Generic Game of Pong");
         //names
         Text player1text = new Text("Player 1 Name: ___");
-        TextField player1Name = new TextField("Player 1");
+        TextField player1Name = new TextField(player1NameSave);
         Text player2text = new Text("Player 2 Name: ___");
-        TextField player2Name = new TextField("Player 2");
+        TextField player2Name = new TextField(player2NameSave);
         //ball speed
         Text speedText = new Text("Select The Ball Speed: ___");
-        Spinner<Integer> ballSpeed = new Spinner<Integer>(1, 100, 1);
+        Spinner<Integer> ballSpeed = new Spinner<>(1, 100, ballSpeedSave);
         Text frequencyText = new Text("How Often Should The Ball Speed Increase: ");
-        Spinner<Integer> frequency = new Spinner<Integer>(1, 10, 5);
+        Spinner<Integer> frequency = new Spinner<>(1, 10, frequencySave);
         //paddles
         Text paddleSize = new Text("Set Size of The Paddles: ");
         Text widthLabel = new Text("Width: ___");
         Text heightLabel = new Text("Height: ___");
-        Spinner<Integer> paddleWidth = new Spinner<Integer>(10, 50, 20 );
-        Spinner<Integer> paddleHeight = new Spinner<Integer>(10, 500, 100 );
+        Spinner<Integer> paddleWidth = new Spinner<>(10, 50, paddleWidthSave);
+        Spinner<Integer> paddleHeight = new Spinner<>(10, 500, paddleHeightSave);
         //score
         Text scoreText = new Text("First to ___ Wins: ");
-        Spinner<Integer> scoreToWin = new Spinner<Integer>(1, 20, 5);
+        Spinner<Integer> scoreToWin = new Spinner<>(1, 20, scoreToWinSave);
         //info and buttons
         Text infoText = new Text("""
                 You can press:
                 \t-ESC to leave at any time
                 \t-P to pause at any time
                 \t-R to restart at any time""");
-        Button setParameters = new Button("Set Parameters");
+        Button setParameters = new Button("Save Parameters to File");
         Button startButton = new Button("START!");
 
 
+        HBox infoBox = new HBox();
+        infoBox.setSpacing(20);
+        infoBox.setPadding(new Insets(10, 10, 10, 10));
+        infoBox.getChildren().addAll(infoText);
+
         setParameters.setOnAction(event -> {
             player1text.setText("Player 1 Name: " + player1Name.getText());
+            player1NameSave = player1Name.getText();
             player2text.setText("Player 2 Name: " + player2Name.getText());
+            player2NameSave = player2Name.getText();
             speedText.setText("Select The Ball Speed: " + ballSpeed.getValue());
+            ballSpeedSave = ballSpeed.getValue();
             frequencyText.setText("How Often Should The Ball Speed Increase: Every " + frequency.getValue() +" Hits");
+            frequencySave = frequency.getValue();
             widthLabel.setText("Width: " + paddleWidth.getValue());
+            paddleWidthSave = paddleWidth.getValue();
             heightLabel.setText("Height: " + paddleHeight.getValue());
+            paddleHeightSave = paddleHeight.getValue();
             scoreText.setText("First to " + scoreToWin.getValue() + " Wins: ");
+            scoreToWinSave = scoreToWin.getValue();
 
+            //save to file
+            try {
+                FileOutputStream fileOut = new FileOutputStream("saveParams.ser");
+                ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                out.writeObject(player1NameSave);
+                out.writeObject(player2NameSave);
+                out.writeObject(ballSpeedSave);
+                out.writeObject(frequencySave);
+                out.writeObject(paddleWidthSave);
+                out.writeObject(paddleHeightSave);
+                out.writeObject(scoreToWinSave);
+                out.close();
+                fileOut.close();
+            } catch (IOException i) {
+                throw new RuntimeException(i);
+            }
+            System.out.println("Game Parameters Saved!");
         });
 
-        startButton.setOnAction(event -> {
-            game( player1Name.getText(), player2Name.getText(), ballSpeed.getValue(), frequency.getValue(),
-                    paddleWidth.getValue(), paddleHeight.getValue(), scoreToWin.getValue());
-        });
+        startButton.setOnAction(event -> game( player1Name.getText(), player2Name.getText(), ballSpeed.getValue(), frequency.getValue(),
+                paddleWidth.getValue(), paddleHeight.getValue(), scoreToWin.getValue()));
 
         VBox playerNames = new VBox(20, title, player1text, player1Name, player2text, player2Name, speedText,
                  ballSpeed, frequencyText, frequency, paddleSize);
@@ -123,13 +199,13 @@ public class Main extends Application {
     /**
      * Generate a game with the specified parameters.
      *
-     * @param  player1Name     the name of player 1
-     * @param  player2Name     the name of player 2
-     * @param  ballSpeed       the speed of the ball
-     * @param  frequency       the frequency of movements
-     * @param  paddleWidth     the width of the paddle
-     * @param  paddleHeight    the height of the paddle
-     * @param  scoreToWin      the score needed to win
+     * @param player1Name  the name of player 1
+     * @param player2Name  the name of player 2
+     * @param ballSpeed    the speed of the ball
+     * @param frequency    the frequency of movements
+     * @param paddleWidth  the width of the paddle
+     * @param paddleHeight the height of the paddle
+     * @param scoreToWin   the score needed to win
      */
     public void game(String player1Name, String player2Name, int ballSpeed, int frequency, int paddleWidth, int paddleHeight, int scoreToWin){
 

@@ -4,9 +4,15 @@ import javafx.scene.paint.Color;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * The type Movements test.
+ */
 public class MovementsTest {
 
 
+    /**
+     * Test check collision.
+     */
     @Test
     public void testCheckCollision() {
         Paddle paddle1 = new Paddle(100, 20, Color.ORANGE);

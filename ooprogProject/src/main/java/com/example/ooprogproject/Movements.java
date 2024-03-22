@@ -323,6 +323,16 @@ public class Movements implements EventHandler<KeyEvent> {
 
     }
 
+    /**
+     * Check collision boolean.
+     *
+     * @param newXspeed the new xspeed
+     * @param newYspeed the new yspeed
+     * @param ball      the ball
+     * @param paddle1   the paddle 1
+     * @param paddle2   the paddle 2
+     * @return the boolean
+     */
     public static boolean checkCollision(double newXspeed, double newYspeed, Balls ball, Paddle paddle1, Paddle paddle2) {
 
         return newXspeed <= paddle1.getPaddles().getX() + paddle1.getPaddles().getWidth() +
