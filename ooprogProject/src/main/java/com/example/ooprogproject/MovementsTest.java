@@ -1,6 +1,5 @@
 package com.example.ooprogproject;
 
-import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import org.junit.Test;
 import static org.junit.Assert.*;
