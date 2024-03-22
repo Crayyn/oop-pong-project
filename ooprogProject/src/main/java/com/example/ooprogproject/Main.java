@@ -45,7 +45,7 @@ public class Main extends Application {
     @Override
    public void start(Stage stage){
         this.stage = stage;
-        Image icon = new Image("file:src/ryanair.png");
+        Image icon = new Image("file:ooprogProject/src/ryanair.png");
         stage.getIcons().add(icon);
         Text title = new Text("Generic Game of Pong");
         //names
