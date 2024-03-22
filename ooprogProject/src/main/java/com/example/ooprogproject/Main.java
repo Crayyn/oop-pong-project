@@ -18,18 +18,16 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-
 /**
  * The type Main.
  */
 public class Main extends Application {
 
     /**
-     * The constant width.
+     * The width.
      */
-    public static double width = 1280, /**
+    public static double width = 1280,
+    /**
      * The Height.
      */
     height = 720;
@@ -39,7 +37,11 @@ public class Main extends Application {
     public Stage stage;
 
 
-
+    /**
+     * The main menu for the game.
+     *
+     * @param  stage    The JavaFX stage where the game will be displayed
+     */
     @Override
    public void start(Stage stage){
         this.stage = stage;
@@ -65,8 +67,12 @@ public class Main extends Application {
         //score
         Text scoreText = new Text("First to ___ Wins: ");
         Spinner<Integer> scoreToWin = new Spinner<Integer>(1, 20, 5);
-        //quiting and buttons
-        Text quittingText = new Text("You can press escape to leave at any time!");
+        //info and buttons
+        Text infoText = new Text("""
+                You can press:
+                \t-ESC to leave at any time
+                \t-P to pause at any time
+                \t-R to restart at any time""");
         Button setParameters = new Button("Set Parameters");
         Button startButton = new Button("START!");
 
@@ -96,7 +102,7 @@ public class Main extends Application {
         paddles.setAlignment(Pos.TOP_CENTER);
         paddles.setMaxWidth(width/2);
 
-        VBox scoresNbuttons = new VBox(20, scoreText, scoreToWin, setParameters, quittingText, startButton);
+        VBox scoresNbuttons = new VBox(20, scoreText, scoreToWin, setParameters, infoText, startButton);
         scoresNbuttons.setAlignment(Pos.TOP_CENTER);
         scoresNbuttons.setMaxWidth(width/2);
 
@@ -115,15 +121,15 @@ public class Main extends Application {
     }
 
     /**
-     * Game.
+     * Generate a game with the specified parameters.
      *
-     * @param player1Name  the player 1 name
-     * @param player2Name  the player 2 name
-     * @param ballSpeed    the ball speed
-     * @param frequency    the frequency
-     * @param paddleWidth  the paddle width
-     * @param paddleHeight the paddle height
-     * @param scoreToWin   the score to win
+     * @param  player1Name     the name of player 1
+     * @param  player2Name     the name of player 2
+     * @param  ballSpeed       the speed of the ball
+     * @param  frequency       the frequency of movements
+     * @param  paddleWidth     the width of the paddle
+     * @param  paddleHeight    the height of the paddle
+     * @param  scoreToWin      the score needed to win
      */
     public void game(String player1Name, String player2Name, int ballSpeed, int frequency, int paddleWidth, int paddleHeight, int scoreToWin){
 
@@ -136,14 +142,16 @@ public class Main extends Application {
         player1.setTextFill(Color.WHITE);
         Label player2 = new Label(player2Name);
         player2.setTextFill(Color.WHITE);
-        AtomicInteger player1score = new AtomicInteger();
-        AtomicInteger player2score = new AtomicInteger();
+        int player1score = 0;
+        int player2score = 0;
         Label player1scoreDisplay = new Label("" + player1score);
         Label player2scoreDisplay = new Label("" + player2score);
-        Label player1scores = new Label("Player 1 Scores!");
-        Label player2scores = new Label("Player 2 Scores!");
-        Label player1wins = new Label("Player 1 Wins!");
-        Label player2wins = new Label("Player 2 Wins!");
+        Label player1scores = new Label(player1Name + " Scores!");
+        Label player2scores = new Label(player2Name + " Scores!");
+        Label player1wins = new Label(player1Name + " Wins!");
+        Label player2wins = new Label(player2Name + " Wins!");
+        Label pausedText = new Label("Game Paused!");
+        pausedText.setTextFill(Color.TRANSPARENT);
         player1scoreDisplay.setTextFill(Color.WHITE);
         player2scoreDisplay.setTextFill(Color.WHITE);
         player1scores.setTextFill(Color.TRANSPARENT);
@@ -154,7 +162,7 @@ public class Main extends Application {
 
         Pane root = new Pane();
         root.getChildren().addAll(ball.getBalls(), paddle1.getPaddles(), paddle2.getPaddles(), player1, player2,
-                player1scoreDisplay, player2scoreDisplay, player1scores, player2scores, player1wins, player2wins);
+                player1scoreDisplay, player2scoreDisplay, player1scores, player2scores, player1wins, player2wins, pausedText);
         root.setStyle("-fx-background-color: Black");
 
         ChangeListener <Number> layout = ((observableValue, oldValue, newValue) -> {
@@ -184,6 +192,7 @@ public class Main extends Application {
             player1scores.setPadding(new Insets(height/2, 0, 0, width/2-50));
             player1wins.setPadding(new Insets(height/2, 0, 0, width/2-50));
             player2wins.setPadding(new Insets(height/2, 0, 0, width/2-50));
+            pausedText.setPadding(new Insets(height/2, 0, 0, width/2-50));
         });
 
         stage.widthProperty().addListener(layout);
@@ -216,6 +225,7 @@ public class Main extends Application {
         player1scores.setPadding(new Insets(height/2, 0, 0, width/2-50));
         player1wins.setPadding(new Insets(height/2, 0, 0, width/2-50));
         player2wins.setPadding(new Insets(height/2, 0, 0, width/2-50));
+        pausedText.setPadding(new Insets(height/2, 0, 0, width/2-50));
 
         stage.setScene(scene);
         stage.show();
@@ -225,7 +235,7 @@ public class Main extends Application {
 
         Movements movements = new Movements(ball, paddle1, paddle2, player1score, player2score, ballSpeed,
                 frequency, scoreToWin, player1scoreDisplay, player2scoreDisplay, player1scores, player2scores,
-                player1wins, player2wins);
+                player1wins, player2wins, pausedText);
 
         movements.startGame(scene);
 
