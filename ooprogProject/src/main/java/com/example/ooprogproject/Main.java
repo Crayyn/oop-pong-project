@@ -119,9 +119,11 @@ public class Main extends Application implements Serializable {
         //info and buttons
         Text infoText = new Text("""
                 You can press:
-                \t-ESC to leave at any time
-                \t-P to pause at any time
-                \t-R to restart at any time""");
+                \t-ESC to leave
+                \t-P to pause 
+                \t-R to restart 
+                \t-K to save the current game state
+                \t-L to load a saved game state""");
         Button setParameters = new Button("Save Parameters to File");
         Button startButton = new Button("START!");
 
@@ -214,10 +216,10 @@ public class Main extends Application implements Serializable {
         Paddle paddle2 = new Paddle(paddleHeight, paddleWidth, Color.GOLD);
 
         stage.setTitle("Pong!");
-        Label player1 = new Label(player1Name);
-        player1.setTextFill(Color.WHITE);
-        Label player2 = new Label(player2Name);
-        player2.setTextFill(Color.WHITE);
+        Label player1name = new Label(player1Name);
+        player1name.setTextFill(Color.WHITE);
+        Label player2name = new Label(player2Name);
+        player2name.setTextFill(Color.WHITE);
         int player1score = 0;
         int player2score = 0;
         Label player1scoreDisplay = new Label("" + player1score);
@@ -227,18 +229,22 @@ public class Main extends Application implements Serializable {
         Label player1wins = new Label(player1Name + " Wins!");
         Label player2wins = new Label(player2Name + " Wins!");
         Label pausedText = new Label("Game Paused!");
-        pausedText.setTextFill(Color.TRANSPARENT);
+        Label savedText = new Label("Game Saved!\nTo resume this game again later press \"L\"");
+
         player1scoreDisplay.setTextFill(Color.WHITE);
         player2scoreDisplay.setTextFill(Color.WHITE);
         player1scores.setTextFill(Color.TRANSPARENT);
         player2scores.setTextFill(Color.TRANSPARENT);
         player1wins.setTextFill(Color.TRANSPARENT);
         player2wins.setTextFill(Color.TRANSPARENT);
+        pausedText.setTextFill(Color.TRANSPARENT);
+        savedText.setTextFill(Color.TRANSPARENT);
 
 
         Pane root = new Pane();
-        root.getChildren().addAll(ball.getBalls(), paddle1.getPaddles(), paddle2.getPaddles(), player1, player2,
-                player1scoreDisplay, player2scoreDisplay, player1scores, player2scores, player1wins, player2wins, pausedText);
+        root.getChildren().addAll(ball.getBalls(), paddle1.getPaddles(), paddle2.getPaddles(), player1name, player2name,
+                player1scoreDisplay, player2scoreDisplay, player1scores, player2scores, player1wins, player2wins,
+                pausedText, savedText);
         root.setStyle("-fx-background-color: Black");
 
         ChangeListener <Number> layout = ((observableValue, oldValue, newValue) -> {
@@ -253,15 +259,15 @@ public class Main extends Application implements Serializable {
             pddl2.setY(height/2-pddl2.getHeight()/2);
             bll.setCenterX(width/2-10);
             bll.setCenterY(height/2);
-            player1.setMinWidth(width);
-            player1.setMinHeight(50);
-            player1.setAlignment(Pos.TOP_LEFT);
-            player1.setPadding(new Insets(20, 20, 20, 20));
-            player2.setMinWidth(width);
-            player2.setMinHeight(50);
-            player2.setAlignment(Pos.TOP_RIGHT);
-            player2.setPadding(new Insets(20, 20, 20, 20));
-            player2.setTextAlignment(TextAlignment.RIGHT);
+            player1name.setMinWidth(width);
+            player1name.setMinHeight(50);
+            player1name.setAlignment(Pos.TOP_LEFT);
+            player1name.setPadding(new Insets(20, 20, 20, 20));
+            player2name.setMinWidth(width);
+            player2name.setMinHeight(50);
+            player2name.setAlignment(Pos.TOP_RIGHT);
+            player2name.setPadding(new Insets(20, 20, 20, 20));
+            player2name.setTextAlignment(TextAlignment.RIGHT);
             player1scoreDisplay.setPadding(new Insets(20, 0, 0, width/2-65));
             player2scoreDisplay.setPadding(new Insets(20, 0, 0, width/2+30));
             player2scores.setPadding(new Insets(height/2, 0, 0, width/2-50));
@@ -269,6 +275,7 @@ public class Main extends Application implements Serializable {
             player1wins.setPadding(new Insets(height/2, 0, 0, width/2-50));
             player2wins.setPadding(new Insets(height/2, 0, 0, width/2-50));
             pausedText.setPadding(new Insets(height/2, 0, 0, width/2-50));
+            savedText.setPadding(new Insets(height/2, 0, 0, width/2-50));
         });
 
         stage.widthProperty().addListener(layout);
@@ -287,14 +294,14 @@ public class Main extends Application implements Serializable {
         pddl2.setY(height/2-pddl2.getHeight()/2);
         bll.setCenterX(width/2-10);
         bll.setCenterY(height/2);
-        player1.setMinWidth(width);
-        player1.setMinHeight(50);
-        player1.setAlignment(Pos.TOP_LEFT);
-        player1.setPadding(new Insets(20, 20, 20, 20));
-        player2.setMinWidth(width);
-        player2.setMinHeight(50);
-        player2.setAlignment(Pos.TOP_RIGHT);
-        player2.setPadding(new Insets(20, 20, 20, 20));
+        player1name.setMinWidth(width);
+        player1name.setMinHeight(50);
+        player1name.setAlignment(Pos.TOP_LEFT);
+        player1name.setPadding(new Insets(20, 20, 20, 20));
+        player2name.setMinWidth(width);
+        player2name.setMinHeight(50);
+        player2name.setAlignment(Pos.TOP_RIGHT);
+        player2name.setPadding(new Insets(20, 20, 20, 20));
         player1scoreDisplay.setPadding(new Insets(20, 0, 0, width/2-65));
         player2scoreDisplay.setPadding(new Insets(20, 0, 0, width/2+40));
         player2scores.setPadding(new Insets(height/2, 0, 0, width/2-50));
@@ -302,6 +309,7 @@ public class Main extends Application implements Serializable {
         player1wins.setPadding(new Insets(height/2, 0, 0, width/2-50));
         player2wins.setPadding(new Insets(height/2, 0, 0, width/2-50));
         pausedText.setPadding(new Insets(height/2, 0, 0, width/2-50));
+        savedText.setPadding(new Insets(height/2, 0, 0, width/2-50));
 
         stage.setScene(scene);
         stage.show();
@@ -311,7 +319,7 @@ public class Main extends Application implements Serializable {
 
         Movements movements = new Movements(ball, paddle1, paddle2, player1score, player2score, ballSpeed,
                 frequency, scoreToWin, player1scoreDisplay, player2scoreDisplay, player1scores, player2scores,
-                player1wins, player2wins, pausedText);
+                player1wins, player2wins, pausedText, savedText);
 
         movements.startGame(scene);
 

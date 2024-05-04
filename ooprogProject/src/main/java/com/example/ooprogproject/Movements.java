@@ -9,6 +9,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 
+import java.io.*;
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * The type Movements.
@@ -18,7 +21,9 @@ public class Movements implements EventHandler<KeyEvent> {
     private final Paddle paddle1;
     private final Paddle paddle2;
     private int player1score;
+    private int memoryPlayer1score;
     private int player2score;
+    private int memoryPlayer2score;
     private final Label player1scoreDisplay;
     private final Label player2scoreDisplay;
     private final Label player1scores;
@@ -26,19 +31,30 @@ public class Movements implements EventHandler<KeyEvent> {
     private final Label player1wins;
     private final Label player2wins;
     private final Label pausedText;
+    private final Label savedText;
 
     private double deltaX = 0;
     private double deltaY = 0;
     private double memoryX = 0;
     private double memoryY = 0;
+    private double memoryBallPosX = 0;
+    private double memoryBallPosY = 0;
     private final int ballSpeed;
+    private double memoryBallSpeed;
     private final int frequency;
+    private int memoryFrequency;
     private final int scoreToWin;
+    private int memoryScoreToWin;
 
     private boolean paddle1Up = false;
     private boolean paddle1Down = false;
     private boolean paddle2Up = false;
     private boolean paddle2Down = false;
+
+    private double memoryPaddle1x = 0;
+    private double memoryPaddle1y = 0;
+    private double memoryPaddle2x = 0;
+    private double memoryPaddle2y = 0;
 
     private double movePaddle1 = 0;
     private double movePaddle2 = 0;
@@ -46,6 +62,9 @@ public class Movements implements EventHandler<KeyEvent> {
     private double memoryPaddleSpeed = 0;
 
     private boolean pause = false;
+    private int memoryNoOfHits;
+    private int noOfHits = 0;
+
 
     /**
      * Instantiates a new Movements.
@@ -67,8 +86,9 @@ public class Movements implements EventHandler<KeyEvent> {
      * @param pausedText          the paused text
      */
     public Movements(Balls ball, Paddle paddle1, Paddle paddle2, int player1score, int player2score,
-                int ballSpeed, int frequency, int scoreToWin, Label player1scoreDisplay, Label player2scoreDisplay,
-                Label player1scores, Label player2scores, Label player1wins, Label player2wins, Label pausedText) {
+                    int ballSpeed, int frequency, int scoreToWin, Label player1scoreDisplay, Label player2scoreDisplay,
+                    Label player1scores, Label player2scores, Label player1wins, Label player2wins, Label pausedText,
+                    Label savedText) {
         this.ball = ball;
         this.paddle1 = paddle1;
         this.paddle2 = paddle2;
@@ -84,7 +104,7 @@ public class Movements implements EventHandler<KeyEvent> {
         this.player1wins = player1wins;
         this.player2wins = player2wins;
         this.pausedText = pausedText;
-
+        this.savedText = savedText;
     }
 
     /**
@@ -109,7 +129,7 @@ public class Movements implements EventHandler<KeyEvent> {
         deltaY = ballSpeed;
         memoryX = deltaX;
         memoryY = deltaY;
-        int noOfHits = 0;
+
 
         while (true) {
             double newXspeed = ball.getBalls().getCenterX() + deltaX;
@@ -136,7 +156,6 @@ public class Movements implements EventHandler<KeyEvent> {
                 memoryY = deltaY;
                 paddleSpeed = ballSpeed;
                 memoryPaddleSpeed = paddleSpeed;
-                noOfHits = 0;
                 System.out.println("Player 2 Score: " + player2score);
                 ball.getBalls().setCenterX(scene.getWidth()/2 - ball.getBalls().getRadius());
                 ball.getBalls().setCenterY(scene.getHeight()/2 - ball.getBalls().getRadius());
@@ -167,7 +186,6 @@ public class Movements implements EventHandler<KeyEvent> {
                 memoryY = deltaY;
                 paddleSpeed = ballSpeed;
                 memoryPaddleSpeed = paddleSpeed;
-                noOfHits = 0;
                 System.out.println("Player 1 Score: " + player1score);
                 ball.getBalls().setCenterX(scene.getWidth()/2 - ball.getBalls().getRadius());
                 ball.getBalls().setCenterY(scene.getHeight()/2 - ball.getBalls().getRadius());
@@ -249,9 +267,51 @@ public class Movements implements EventHandler<KeyEvent> {
                 pause();
             } else if (keyEvent.getCode() == KeyCode.R) {
                 restart(scene);
+            } else if (keyEvent.getCode() == KeyCode.K) {
+                savedText.setTextFill(Color.WHITE);
 
+                memoryPaddleSpeed = paddleSpeed;
+                memoryBallSpeed = ballSpeed;
+                memoryX = deltaX;
+                memoryY = deltaY;
+                memoryFrequency = frequency;
+                memoryPaddle1y = paddle1.getPaddles().getY();
+                memoryPaddle1x = paddle1.getPaddles().getX();
+                memoryPaddle2y = paddle2.getPaddles().getY();
+                memoryPaddle2x = paddle2.getPaddles().getX();
+                memoryScoreToWin = scoreToWin;
+                memoryNoOfHits = noOfHits;
+                memoryBallPosX = ball.getBalls().getCenterX();
+                memoryBallPosY = ball.getBalls().getCenterY();
+                memoryPlayer1score = player1score;
+                memoryPlayer2score = player2score;
+                try {
+                    pause();
+                    FileOutputStream fileOut = new FileOutputStream("saveGame.ser");
+                    ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                    out.writeObject(memoryPaddleSpeed);
+                    out.writeObject(memoryBallSpeed);
+                    out.writeObject(memoryX);
+                    out.writeObject(memoryY);
+                    out.writeObject(memoryFrequency);
+                    out.writeObject(memoryPaddle1y);
+                    out.writeObject(memoryPaddle1x);
+                    out.writeObject(memoryPaddle2y);
+                    out.writeObject(memoryPaddle2x);
+                    out.writeObject(memoryScoreToWin);
+                    out.writeObject(memoryNoOfHits);
+                    out.writeObject(memoryBallPosX);
+                    out.writeObject(memoryBallPosY);
+                    out.writeObject(memoryPlayer1score);
+                    out.writeObject(memoryPlayer2score);
+                    out.close();
+                    fileOut.close();
 
+                    Runtime.getRuntime().exit(0);
 
+                } catch (IOException i) {
+                    throw new RuntimeException(i);
+                }
             }
         });
 
