@@ -8,9 +8,13 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
-
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.*;
-import java.util.concurrent.TimeUnit;
+
 
 
 /**
@@ -39,11 +43,11 @@ public class Movements implements EventHandler<KeyEvent> {
     private double memoryY = 0;
     private double memoryBallPosX = 0;
     private double memoryBallPosY = 0;
-    private final int ballSpeed;
-    private double memoryBallSpeed;
-    private final int frequency;
+    private int ballSpeed;
+    private int memoryBallSpeed;
+    private int frequency;
     private int memoryFrequency;
-    private final int scoreToWin;
+    private int scoreToWin;
     private int memoryScoreToWin;
 
     private boolean paddle1Up = false;
@@ -287,24 +291,22 @@ public class Movements implements EventHandler<KeyEvent> {
                 memoryPlayer2score = player2score;
                 try {
                     pause();
-                    FileOutputStream fileOut = new FileOutputStream("saveGame.ser");
-                    ObjectOutputStream out = new ObjectOutputStream(fileOut);
-                    out.writeObject(memoryPaddleSpeed);
-                    out.writeObject(memoryBallSpeed);
-                    out.writeObject(memoryX);
-                    out.writeObject(memoryY);
-                    out.writeObject(memoryFrequency);
-                    out.writeObject(memoryPaddle1y);
-                    out.writeObject(memoryPaddle1x);
-                    out.writeObject(memoryPaddle2y);
-                    out.writeObject(memoryPaddle2x);
-                    out.writeObject(memoryScoreToWin);
-                    out.writeObject(memoryNoOfHits);
-                    out.writeObject(memoryBallPosX);
-                    out.writeObject(memoryBallPosY);
-                    out.writeObject(memoryPlayer1score);
-                    out.writeObject(memoryPlayer2score);
-                    out.close();
+                    FileWriter fileOut = new FileWriter("saveGame.txt");
+                    fileOut.write(memoryPaddleSpeed + "\n");
+                    fileOut.write(memoryBallSpeed + "\n");
+                    fileOut.write(memoryX + "\n");
+                    fileOut.write(memoryY + "\n");
+                    fileOut.write(memoryFrequency + "\n");
+                    fileOut.write(memoryPaddle1y + "\n");
+                    fileOut.write(memoryPaddle1x + "\n");
+                    fileOut.write(memoryPaddle2y + "\n");
+                    fileOut.write(memoryPaddle2x + "\n");
+                    fileOut.write(memoryScoreToWin + "\n");
+                    fileOut.write(memoryNoOfHits + "\n");
+                    fileOut.write(memoryBallPosX + "\n");
+                    fileOut.write(memoryBallPosY + "\n");
+                    fileOut.write(memoryPlayer1score + "\n");
+                    fileOut.write(memoryPlayer2score + "\n");
                     fileOut.close();
 
                     Runtime.getRuntime().exit(0);
@@ -312,6 +314,37 @@ public class Movements implements EventHandler<KeyEvent> {
                 } catch (IOException i) {
                     throw new RuntimeException(i);
                 }
+            } else if (keyEvent.getCode() == KeyCode.L) {
+                try {
+                    pause();
+                    File fileIn = new File("saveGame.txt");
+                    Scanner fileReader = new Scanner(fileIn);
+                    while (fileReader.hasNextLine()) {
+
+                        paddleSpeed = Double.parseDouble(fileReader.nextLine());
+                        ballSpeed = Integer.parseInt(fileReader.nextLine());
+                        deltaX = Double.parseDouble(fileReader.nextLine());
+                        deltaY = Double.parseDouble(fileReader.nextLine());
+                        frequency = Integer.parseInt(fileReader.nextLine());
+                        paddle1.getPaddles().setY(Double.parseDouble(fileReader.nextLine()));
+                        paddle1.getPaddles().setX(Double.parseDouble(fileReader.nextLine()));
+                        paddle2.getPaddles().setY(Double.parseDouble(fileReader.nextLine()));
+                        paddle2.getPaddles().setX(Double.parseDouble(fileReader.nextLine()));
+                        scoreToWin = Integer.parseInt(fileReader.nextLine());
+                        noOfHits = Integer.parseInt(fileReader.nextLine());
+                        ball.getBalls().setCenterX(Double.parseDouble(fileReader.nextLine()));
+                        ball.getBalls().setCenterY(Double.parseDouble(fileReader.nextLine()));
+                        player1score = Integer.parseInt(fileReader.nextLine());
+                        player2score = Integer.parseInt(fileReader.nextLine());
+                    }
+                    fileReader.close();
+                    pause();
+
+                } catch(FileNotFoundException e) {
+                    System.out.println("An Error Occurred.");
+                    e.printStackTrace();
+                }
+
             }
         });
 
