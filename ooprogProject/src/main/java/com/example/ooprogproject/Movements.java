@@ -5,16 +5,18 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
+import java.sql.*;
+import java.util.Optional;
 import java.util.Scanner;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.*;
-
 
 
 /**
@@ -36,6 +38,8 @@ public class Movements implements EventHandler<KeyEvent> {
     private final Label player2wins;
     private final Label pausedText;
     private final Label savedText;
+    private final Label player1Name;
+    private final Label player2Name;
 
     private double deltaX = 0;
     private double deltaY = 0;
@@ -69,6 +73,12 @@ public class Movements implements EventHandler<KeyEvent> {
     private int memoryNoOfHits;
     private int noOfHits = 0;
 
+    private String url = "jdbc:mysql://localhost:3306/pong_database?useSSL=false";
+    private String user = "root";
+    private String pass = "munster5";
+
+
+
 
     /**
      * Instantiates a new Movements.
@@ -88,11 +98,13 @@ public class Movements implements EventHandler<KeyEvent> {
      * @param player1wins         the player 1 wins
      * @param player2wins         the player 2 wins
      * @param pausedText          the paused text
+     * @param player1Name
+     * @param player2Name
      */
     public Movements(Balls ball, Paddle paddle1, Paddle paddle2, int player1score, int player2score,
-                    int ballSpeed, int frequency, int scoreToWin, Label player1scoreDisplay, Label player2scoreDisplay,
-                    Label player1scores, Label player2scores, Label player1wins, Label player2wins, Label pausedText,
-                    Label savedText) {
+                     int ballSpeed, int frequency, int scoreToWin, Label player1scoreDisplay, Label player2scoreDisplay,
+                     Label player1scores, Label player2scores, Label player1wins, Label player2wins, Label pausedText,
+                     Label savedText, Label player1Name, Label player2Name) throws MalformedURLException, NoSuchMethodException {
         this.ball = ball;
         this.paddle1 = paddle1;
         this.paddle2 = paddle2;
@@ -109,6 +121,8 @@ public class Movements implements EventHandler<KeyEvent> {
         this.player2wins = player2wins;
         this.pausedText = pausedText;
         this.savedText = savedText;
+        this.player1Name = player1Name;
+        this.player2Name = player2Name;
     }
 
     /**
@@ -271,26 +285,55 @@ public class Movements implements EventHandler<KeyEvent> {
                 pause();
             } else if (keyEvent.getCode() == KeyCode.R) {
                 restart(scene);
+            } else if (keyEvent.getCode() == KeyCode.J) {
+                prepToWrite();
+                pause();
+                pausedText.setTextFill(Color.TRANSPARENT);
+
+
+
+                DatabaseConnection databaseConnection = DatabaseConnection.getInstance();
+
+                TextInputDialog gameName = new TextInputDialog();
+                gameName.setTitle("Save");
+                gameName.setHeaderText("Name your save game:");
+                gameName.setContentText("Name:");
+
+                try {
+                    Connection connection = databaseConnection.getConnection();
+                    System.out.println("Connected to the database");
+                    Statement statement = connection.createStatement();
+                    Optional<String> result = gameName.showAndWait();
+                    result.ifPresent(name -> System.out.println("Game saved to the database as " + name));
+                    if (result.isPresent()) {
+                        String query = String.format("""
+                        INSERT INTO Game (game_name, player1_name, player2_name, player1_score, player2_score, score_to_win)
+                        VALUES ('%s', '%s', '%s', %d, %d, %d);
+                        """, result.get(), player1Name.getText(), player2Name.getText(),
+                                memoryPlayer1score, memoryPlayer2score, memoryScoreToWin);
+
+                        statement.executeUpdate(query);
+                        System.out.println("Table created successfully");
+
+
+                    } else {
+                        System.out.println("Game not saved to the database");
+                    }
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+                pause();
+                Runtime.getRuntime().exit(0);
+
             } else if (keyEvent.getCode() == KeyCode.K) {
                 savedText.setTextFill(Color.WHITE);
+                prepToWrite();
 
-                memoryPaddleSpeed = paddleSpeed;
-                memoryBallSpeed = ballSpeed;
-                memoryX = deltaX;
-                memoryY = deltaY;
-                memoryFrequency = frequency;
-                memoryPaddle1y = paddle1.getPaddles().getY();
-                memoryPaddle1x = paddle1.getPaddles().getX();
-                memoryPaddle2y = paddle2.getPaddles().getY();
-                memoryPaddle2x = paddle2.getPaddles().getX();
-                memoryScoreToWin = scoreToWin;
-                memoryNoOfHits = noOfHits;
-                memoryBallPosX = ball.getBalls().getCenterX();
-                memoryBallPosY = ball.getBalls().getCenterY();
-                memoryPlayer1score = player1score;
-                memoryPlayer2score = player2score;
                 try {
                     pause();
+                    pausedText.setTextFill(Color.TRANSPARENT);
                     FileWriter fileOut = new FileWriter("saveGame.txt");
                     fileOut.write(memoryPaddleSpeed + "\n");
                     fileOut.write(memoryBallSpeed + "\n");
@@ -309,14 +352,79 @@ public class Movements implements EventHandler<KeyEvent> {
                     fileOut.write(memoryPlayer2score + "\n");
                     fileOut.close();
 
+                    pause();
                     Runtime.getRuntime().exit(0);
-
                 } catch (IOException i) {
                     throw new RuntimeException(i);
                 }
+            } else if (keyEvent.getCode() == KeyCode.M) {
+                restart(scene);
+                pause();
+                pausedText.setTextFill(Color.TRANSPARENT);
+
+                DatabaseConnection databaseConnection = DatabaseConnection.getInstance();
+
+
+
+                try {
+                    Connection connection = databaseConnection.getConnection();
+                    System.out.println("Connected to the database");
+                    Statement statement = connection.createStatement();
+
+                    ResultSet rs = statement.executeQuery("SELECT game_id, game_name FROM game");
+
+                    StringBuilder gameInfo = new StringBuilder();
+
+
+                    while (rs.next()) {
+                        int gameId = rs.getInt("game_id");
+                        String gameName = rs.getString("game_name");
+
+
+                        gameInfo.append("Game ID: ").append(gameId).append(", Game Name: ").append(gameName).append("\n");
+                    }
+
+                    String gamesInfoString = gameInfo.toString();
+
+                    TextInputDialog gameName = new TextInputDialog();
+                    gameName.setTitle("Choose Save");
+                    gameName.setHeaderText("What save game would you like to load?\n" + gamesInfoString);
+                    gameName.setContentText("ID Number of save game:");
+                    Optional<String> result = gameName.showAndWait();
+
+                    if (result.isPresent()) {
+                        PreparedStatement saveState = connection.prepareStatement("SELECT * FROM game WHERE game_id = ?");
+                        saveState.setInt(1, Integer.parseInt(result.get()));
+
+                        ResultSet rs2 = saveState.executeQuery();
+
+                        if (rs2.next()) {
+
+                            player1Name.setText(rs2.getString("player1_name"));
+                            player2Name.setText(rs2.getString("player2_name"));
+                            player1score = rs2.getInt("player1_score");
+                            player2score = rs2.getInt("player2_score");
+                            scoreToWin = rs2.getInt("score_to_win");
+                        }
+
+
+                        System.out.println("Game loaded from the database as " + result.get());
+                    } else {
+                        System.out.println("Game not loaded from the database");
+                    }
+
+
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+                pause();
+
             } else if (keyEvent.getCode() == KeyCode.L) {
                 try {
                     pause();
+                    pausedText.setTextFill(Color.TRANSPARENT);
                     File fileIn = new File("saveGame.txt");
                     Scanner fileReader = new Scanner(fileIn);
                     while (fileReader.hasNextLine()) {
@@ -487,6 +595,24 @@ public class Movements implements EventHandler<KeyEvent> {
         memoryY = deltaY;
         memoryPaddleSpeed = paddleSpeed;
 
+    }
+
+    private void prepToWrite() {
+        memoryPaddleSpeed = paddleSpeed;
+        memoryBallSpeed = ballSpeed;
+        memoryX = deltaX;
+        memoryY = deltaY;
+        memoryFrequency = frequency;
+        memoryPaddle1y = paddle1.getPaddles().getY();
+        memoryPaddle1x = paddle1.getPaddles().getX();
+        memoryPaddle2y = paddle2.getPaddles().getY();
+        memoryPaddle2x = paddle2.getPaddles().getX();
+        memoryScoreToWin = scoreToWin;
+        memoryNoOfHits = noOfHits;
+        memoryBallPosX = ball.getBalls().getCenterX();
+        memoryBallPosY = ball.getBalls().getCenterY();
+        memoryPlayer1score = player1score;
+        memoryPlayer2score = player2score;
     }
 
 

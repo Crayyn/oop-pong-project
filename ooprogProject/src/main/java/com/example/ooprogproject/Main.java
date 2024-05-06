@@ -18,6 +18,10 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import java.io.*;
+import java.net.MalformedURLException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * The type Main.
@@ -92,6 +96,29 @@ public class Main extends Application implements Serializable {
             fileIn.close();
         }
 
+        // Get the singleton instance of DatabaseConnection
+        DatabaseConnection databaseConnection = DatabaseConnection.getInstance();
+        try {
+            // Get the database connection
+            Connection connection = databaseConnection.getConnection();
+            System.out.println("Connected to the database");
+            Statement statement = connection.createStatement();
+            statement.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS Game (
+                        game_id INT AUTO_INCREMENT PRIMARY KEY,
+                        game_name VARCHAR(255) NOT NULL,
+                        player1_name VARCHAR(255) NOT NULL,
+                        player2_name VARCHAR(255) NOT NULL,
+                        player1_score INT NOT NULL DEFAULT 0,
+                        player2_score INT NOT NULL DEFAULT 0,
+                        score_to_win INT NOT NULL DEFAULT 5
+                    );
+
+                    """);
+            System.out.println("Table created successfully");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         //generate menu
         Image icon = new Image("file:ooprogProject/src/ryanair.png");
@@ -118,12 +145,15 @@ public class Main extends Application implements Serializable {
         Spinner<Integer> scoreToWin = new Spinner<>(1, 20, scoreToWinSave);
         //info and buttons
         Text infoText = new Text("""
+                ~~INSTRUCTIONS~~
                 You can press:
                 \t-ESC to leave
                 \t-P to pause 
                 \t-R to restart 
-                \t-K to save the current game state
-                \t-L to load a saved game state""");
+                \t-J to save the current game state to a database
+                \t-K to save the current game state to a file
+                \t-M to load a saved game state from a database
+                \t-L to load a saved game state from a file""");
         Button setParameters = new Button("Save Parameters to File");
         Button startButton = new Button("START!");
 
@@ -171,6 +201,10 @@ public class Main extends Application implements Serializable {
         startButton.setOnAction(event -> game( player1Name.getText(), player2Name.getText(), ballSpeed.getValue(), frequency.getValue(),
                 paddleWidth.getValue(), paddleHeight.getValue(), scoreToWin.getValue()));
 
+        VBox infoTextBox = new VBox(10, infoText);
+        //infoTextBox.setAlignment(Pos.TOP_LEFT);
+        infoTextBox.setMaxWidth(50);
+
         VBox playerNames = new VBox(20, title, player1text, player1Name, player2text, player2Name, speedText,
                  ballSpeed, frequencyText, frequency, paddleSize);
         playerNames.setAlignment(Pos.TOP_CENTER);
@@ -180,14 +214,19 @@ public class Main extends Application implements Serializable {
         paddles.setAlignment(Pos.TOP_CENTER);
         paddles.setMaxWidth(width/2);
 
-        VBox scoresNbuttons = new VBox(20, scoreText, scoreToWin, setParameters, infoText, startButton);
+        VBox scoresNbuttons = new VBox(20, scoreText, scoreToWin, setParameters, startButton);
         scoresNbuttons.setAlignment(Pos.TOP_CENTER);
         scoresNbuttons.setMaxWidth(width/2);
 
         VBox root = new VBox(20, playerNames, paddles, scoresNbuttons);
         root.setAlignment(Pos.TOP_CENTER);
 
-        Scene menu = new Scene(root, width, height);
+        Pane rootPane = new Pane();
+        rootPane.getChildren().addAll(infoTextBox, root);
+        root.relocate(width/3,  0);
+        infoTextBox.relocate(20, height/3);
+
+        Scene menu = new Scene(rootPane, width, height);
 
 
         menu.setOnKeyPressed((event) -> {
@@ -229,7 +268,8 @@ public class Main extends Application implements Serializable {
         Label player1wins = new Label(player1Name + " Wins!");
         Label player2wins = new Label(player2Name + " Wins!");
         Label pausedText = new Label("Game Paused!");
-        Label savedText = new Label("Game Saved!\nTo resume this game again later press \"L\"");
+         Label savedText = new Label("Game Saved!\nTo resume this game again later press \"L\"");
+
 
         player1scoreDisplay.setTextFill(Color.WHITE);
         player2scoreDisplay.setTextFill(Color.WHITE);
@@ -239,6 +279,7 @@ public class Main extends Application implements Serializable {
         player2wins.setTextFill(Color.TRANSPARENT);
         pausedText.setTextFill(Color.TRANSPARENT);
         savedText.setTextFill(Color.TRANSPARENT);
+
 
 
         Pane root = new Pane();
@@ -276,6 +317,7 @@ public class Main extends Application implements Serializable {
             player2wins.setPadding(new Insets(height/2, 0, 0, width/2-50));
             pausedText.setPadding(new Insets(height/2, 0, 0, width/2-50));
             savedText.setPadding(new Insets(height/2, 0, 0, width/2-50));
+
         });
 
         stage.widthProperty().addListener(layout);
@@ -315,11 +357,14 @@ public class Main extends Application implements Serializable {
         stage.show();
 
 
-
-
-        Movements movements = new Movements(ball, paddle1, paddle2, player1score, player2score, ballSpeed,
-                frequency, scoreToWin, player1scoreDisplay, player2scoreDisplay, player1scores, player2scores,
-                player1wins, player2wins, pausedText, savedText);
+        Movements movements = null;
+        try {
+            movements = new Movements(ball, paddle1, paddle2, player1score, player2score, ballSpeed,
+                    frequency, scoreToWin, player1scoreDisplay, player2scoreDisplay, player1scores, player2scores,
+                    player1wins, player2wins, pausedText, savedText, player1name, player2name);
+        } catch (MalformedURLException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
 
         movements.startGame(scene);
 
